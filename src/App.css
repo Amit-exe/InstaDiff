@@ -1,0 +1,10 @@
+/* App Container Global Styles */
+.instadiff-root {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  position: relative;
+  background-color: var(--bg-dark);
+}
