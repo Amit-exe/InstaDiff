@@ -200,36 +200,47 @@ export default function InstaDiffApp() {
       <header style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 50,
         height: 64, display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "0 20px", background: "rgba(7,9,14,0.8)",
+        padding: "0 16px", background: "rgba(7,9,14,0.88)",
         backdropFilter: "blur(16px)", borderBottom: "1px solid rgba(255,255,255,0.08)",
+        gap: 8,
       }}>
         {/* Logo */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: 22, filter: "drop-shadow(0 0 10px rgba(0,242,254,0.9))", animation: "pulse-icon 3s ease-in-out infinite" }}>⚡</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+          <span style={{ fontSize: 20, filter: "drop-shadow(0 0 10px rgba(0,242,254,0.9))", animation: "pulse-icon 3s ease-in-out infinite" }}>⚡</span>
           <span style={{
-            fontFamily: "'Syne', sans-serif", fontSize: 18, fontWeight: 900, letterSpacing: 1,
+            fontFamily: "'Syne', sans-serif", fontSize: 17, fontWeight: 900, letterSpacing: 1,
             textTransform: "uppercase",
             background: "linear-gradient(135deg,#00f2fe,#ff0844,#ffaa00)",
             WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
           }}>InstaDiff</span>
         </div>
 
-        {/* Center privacy badge */}
-        <div style={{
+        {/* Center privacy badge — hidden on mobile */}
+        <div className="privacy-badge" style={{
           display: "flex", alignItems: "center", gap: 6, fontSize: 11, fontWeight: 700,
           color: "#10b981", background: "rgba(16,185,129,0.1)",
           border: "1px solid rgba(16,185,129,0.25)", padding: "5px 14px",
-          borderRadius: 999, textTransform: "uppercase", letterSpacing: 1,
+          borderRadius: 999, textTransform: "uppercase", letterSpacing: 1, flexShrink: 0,
         }}>
           <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#10b981", boxShadow: "0 0 8px #10b981", display: "inline-block", animation: "blink 2s infinite" }} />
           100% Private
         </div>
 
-        {/* Right actions */}
-        <div style={{ display: "flex", gap: 8 }}>
-          <button onClick={() => setShowGuide(true)} style={btnGhost}>❓ How To Export</button>
-          {!bothReady && !isRevealed && <button onClick={handleLoadSample} style={btnSample}>🚀 Try Demo</button>}
-          {isRevealed && <button onClick={handleReset} style={btnGhost}>🔄 Reset</button>}
+        {/* Right actions — icon-only on mobile, labelled on desktop */}
+        <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+          <button onClick={() => setShowGuide(true)} style={btnGhost} title="How to export">
+            <span>❓</span><span className="btn-label"> How To Export</span>
+          </button>
+          {!bothReady && !isRevealed && (
+            <button onClick={handleLoadSample} style={btnSample} title="Try Demo">
+              <span>🚀</span><span className="btn-label"> Try Demo</span>
+            </button>
+          )}
+          {isRevealed && (
+            <button onClick={handleReset} style={btnGhost} title="Reset">
+              <span>🔄</span><span className="btn-label"> Reset</span>
+            </button>
+          )}
         </div>
       </header>
 
@@ -243,12 +254,15 @@ export default function InstaDiffApp() {
           UPLOAD SCREEN
          ══════════════════════════════════════════ */}
       {!isRevealed ? (
-        <main style={{
-          flex: 1, paddingTop: 64, display: "flex", flexDirection: "column",
-          minHeight: "100dvh",
-          /* On md+ switch to row via media query below */
-        }}
+        <main
           className="upload-main"
+          style={{
+            position: "fixed",
+            top: 64, left: 0, right: 0, bottom: 0,
+            display: "flex",
+            flexDirection: "column", /* overridden to row on desktop via CSS */
+            overflow: "hidden",
+          }}
         >
           {/* LEFT zone */}
           <DropZone
@@ -294,9 +308,10 @@ export default function InstaDiffApp() {
             onReplace={() => followingRef.current?.click()}
           />
 
-          {/* Reveal button — below both zones */}
+          {/* Reveal button — fixed overlay at bottom center, never pushes content */}
           {bothReady && (
-            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: "32px 20px", background: "#07090e" }}>
+            <div style={{ position: "fixed", bottom: 28, left: 0, right: 0, display: "flex", justifyContent: "center", zIndex: 40, pointerEvents: "none" }}>
+            <div style={{ pointerEvents: "auto" }}>
               <button onClick={handleReveal} style={{
                 position: "relative", border: "none", background: "transparent",
                 padding: 0, cursor: "pointer", outline: "none",
@@ -331,7 +346,7 @@ export default function InstaDiffApp() {
                   <span style={{ fontSize: 28, transform: "rotate(180deg)", animation: "pulse-quick 1.2s infinite" }}>⚡</span>
                 </div>
               </button>
-            </div>
+            </div></div>
           )}
         </main>
       ) : (
@@ -562,11 +577,20 @@ export default function InstaDiffApp() {
         @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
         @keyframes spin-ring { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 
-        /* Upload layout: stack on mobile, side-by-side on desktop */
+        /* Upload layout: column on mobile (each half = 50%), row on desktop */
         .upload-main { flex-direction: column !important; }
-        @media(min-width:768px) { .upload-main { flex-direction: row !important; } }
+        @media(min-width:768px) {
+          .upload-main { flex-direction: row !important; }
+          .upload-main > div { height: 100% !important; flex: 1 !important; }
+        }
 
-        /* Hover on user cards */
+        /* Hide privacy badge on small screens to prevent overlap */
+        @media(max-width:560px) { .privacy-badge { display: none !important; } }
+
+        /* Hide button text labels on very small screens (icon only) */
+        @media(max-width:480px) { .btn-label { display: none !important; } }
+
+        /* User card hover */
         .user-card-hover:hover {
           border-color: rgba(255,8,68,0.4) !important;
           transform: translateY(-2px);
@@ -590,14 +614,16 @@ function DropZone({ side, accentColor, partLabel, title, hint, uploadLabel, isDr
       onDragLeave={onDragLeave}
       onDrop={onDrop}
       style={{
-        flex: 1,
+        flex: "1 1 50%",
+        height: "50%",            /* exactly half the parent on mobile */
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: "40px 24px",
+        padding: "12px 16px",
         cursor: "pointer",
         userSelect: "none",
         transition: "background 0.3s ease",
+        overflow: "hidden",       /* never overflow; card scales to fit */
         background: isDragOver
           ? `radial-gradient(circle at 50% 50%, ${accentColor}22, rgba(7,9,14,0.97) 75%)`
           : isLoaded
@@ -608,27 +634,26 @@ function DropZone({ side, accentColor, partLabel, title, hint, uploadLabel, isDr
           ? "radial-gradient(circle at 20% 30%, rgba(0,242,254,0.07), rgba(9,14,26,0.97) 72%)"
           : "radial-gradient(circle at 80% 30%, rgba(255,8,68,0.07), rgba(18,10,24,0.97) 72%)",
         boxShadow: isDragOver ? `inset 0 0 80px ${accentColor}33` : "none",
-        borderBottom: "1px solid rgba(255,255,255,0.07)",
-        /* On desktop, show a side border instead */
-        minHeight: "calc(50dvh - 32px)",
+        borderBottom: isCyan ? "1px solid rgba(255,255,255,0.07)" : "none",
       }}
     >
-      {/* Card */}
+      {/* Card — compact on mobile */}
       <div style={{
         position: "relative",
         display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center",
         maxWidth: 420, width: "100%",
-        padding: "36px 28px",
-        borderRadius: 28,
-        background: "rgba(12,17,28,0.7)",
+        padding: "clamp(14px, 2.5vh, 32px) clamp(16px, 4vw, 28px)",
+        borderRadius: 24,
+        background: "rgba(12,17,28,0.75)",
         backdropFilter: "blur(20px)",
         border: `1px solid rgba(255,255,255,0.09)`,
         borderTop: `2px solid ${accentColor}99`,
-        boxShadow: `0 20px 50px rgba(0,0,0,0.55), 0 0 0 0 transparent`,
+        boxShadow: `0 16px 40px rgba(0,0,0,0.55)`,
         transition: "transform 0.3s ease, box-shadow 0.3s ease",
+        overflow: "hidden",
       }}>
         {/* Animated icon ring */}
-        <div style={{ position: "relative", width: 88, height: 88, marginBottom: 20, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ position: "relative", width: "clamp(56px,8vh,88px)", height: "clamp(56px,8vh,88px)", marginBottom: "clamp(8px,1.5vh,20px)", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <div style={{
             position: "absolute", inset: 0, borderRadius: "50%",
             border: `2px dashed ${accentColor}66`,
