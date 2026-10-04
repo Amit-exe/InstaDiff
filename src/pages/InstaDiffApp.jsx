@@ -67,14 +67,14 @@ const GUIDE_STEPS = [
   },
   {
     step: 6,
-    title: "6. Export to Device",
-    desc: "Select 'Export to device' (Download to device).",
+    title: "6. Export to External Service (Google Drive)",
+    desc: "Select 'Export to external service' and connect your Google Drive account.",
     image: `${import.meta.env.BASE_URL}guide/step6.png`,
   },
   {
     step: 7,
-    title: "7. Select Frequency",
-    desc: "Select 'Once' for a single export package.",
+    title: "7. Select Frequency & Duration",
+    desc: "Select 'Monthly' (or Weekly) and set duration to '3 years'. This delivers recurring data automatically so you don't have to set it up repeatedly!",
     image: `${import.meta.env.BASE_URL}guide/step7.png`,
   },
   {
@@ -85,9 +85,10 @@ const GUIDE_STEPS = [
   },
   {
     step: 9,
-    title: "9. Set Date Range to All Time",
-    desc: "Tap Date range and select 'All time' so no followers are missing.",
+    title: "9. CRITICAL: Set Date Range to All Time!",
+    desc: "⚠️ MUST select 'All time'! Without 'All time', Instagram only exports accounts that followed within the selected date window, missing your existing followers and following.",
     image: `${import.meta.env.BASE_URL}guide/step9.png`,
+    warning: true,
   },
   {
     step: 10,
