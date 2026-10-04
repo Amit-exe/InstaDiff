@@ -33,6 +33,72 @@ const C = {
   green:  "#00c97d",
 };
 
+// ─── Guide steps with annotated screenshots ────────────────────────────────
+const GUIDE_STEPS = [
+  {
+    step: 1,
+    title: "1. Tap Accounts Centre",
+    desc: "Go to your Instagram profile → Settings and activity → Tap 'Accounts Centre' at the top under Your account.",
+    image: `${import.meta.env.BASE_URL}guide/step1.png`,
+  },
+  {
+    step: 2,
+    title: "2. Your Information & Permissions",
+    desc: "In Accounts Centre, scroll down and select 'Your information and permissions'.",
+    image: `${import.meta.env.BASE_URL}guide/step2.png`,
+  },
+  {
+    step: 3,
+    title: "3. Export Your Information",
+    desc: "Tap on 'Export your information' at the top of the option list.",
+    image: `${import.meta.env.BASE_URL}guide/step3.png`,
+  },
+  {
+    step: 4,
+    title: "4. Create Export Request",
+    desc: "Tap the blue 'Create export' button to start your export request.",
+    image: `${import.meta.env.BASE_URL}guide/step4.png`,
+  },
+  {
+    step: 5,
+    title: "5. Choose Profile",
+    desc: "Select your Instagram profile from the account list.",
+    image: `${import.meta.env.BASE_URL}guide/step5.png`,
+  },
+  {
+    step: 6,
+    title: "6. Export to Device",
+    desc: "Select 'Export to device' (Download to device).",
+    image: `${import.meta.env.BASE_URL}guide/step6.png`,
+  },
+  {
+    step: 7,
+    title: "7. Select Frequency",
+    desc: "Select 'Once' for a single export package.",
+    image: `${import.meta.env.BASE_URL}guide/step7.png`,
+  },
+  {
+    step: 8,
+    title: "8. Select Followers & Following",
+    desc: "Tap 'Customise information' and check ONLY 'Followers and following'.",
+    image: `${import.meta.env.BASE_URL}guide/step8.png`,
+  },
+  {
+    step: 9,
+    title: "9. Set Date Range to All Time",
+    desc: "Tap Date range and select 'All time' so no followers are missing.",
+    image: `${import.meta.env.BASE_URL}guide/step9.png`,
+  },
+  {
+    step: 10,
+    title: "10. CRITICAL: Change Format to JSON!",
+    desc: "⚠️ Instagram defaults to HTML! You MUST tap 'Format' and change it from HTML to JSON before creating the export. Once unzipped, drop followers_1.json & following.json here!",
+    image: `${import.meta.env.BASE_URL}guide/step10.png`,
+    warning: true,
+  },
+];
+
+
 // ─── Utility styles ───────────────────────────────────────────────────────────
 const S = {
   flex: (dir="row",align="center",justify="flex-start",gap=0) => ({
@@ -60,6 +126,7 @@ export default function InstaDiffApp() {
   const [sort,      setSort]        = useState("az");
   const [copied,    setCopied]      = useState(null);
   const [guide,     setGuide]       = useState(false);
+  const [guideStep, setGuideStep]   = useState(0);
   const [toast,     setToast]       = useState("");
 
   const fRef  = useRef(null);
@@ -200,7 +267,7 @@ export default function InstaDiffApp() {
 
         {/* Right: actions */}
         <div style={S.flex("row","center","flex-end",6)}>
-          <button onClick={()=>setGuide(true)} className="btn-hover"
+          <button onClick={()=>{ setGuideStep(0); setGuide(true); }} className="btn-hover"
             style={{ background:"transparent", border:`1px solid ${C.border}`, color:C.sub, borderRadius:8, padding:"6px 10px", fontSize:12, fontWeight:600, display:"flex", alignItems:"center", gap:4 }}>
             <span>❓</span><span className="hide-xs">How To Export</span>
           </button>
@@ -444,45 +511,126 @@ export default function InstaDiffApp() {
       {/* ── Guide modal ── */}
       {guide && (
         <div onClick={()=>setGuide(false)} style={{ position:"fixed", inset:0, zIndex:300,
-          background:"rgba(0,0,0,0.75)", backdropFilter:"blur(16px)", animation:"fadeIn .2s ease",
-          display:"flex", alignItems:"flex-end", justifyContent:"center",
-          /* bottom-sheet on mobile */
+          background:"rgba(0,0,0,0.85)", backdropFilter:"blur(16px)", animation:"fadeIn .2s ease",
+          display:"flex", alignItems:"center", justifyContent:"center", padding:16
         }}>
-          <div onClick={e=>e.stopPropagation()} style={{ background:C.card, borderRadius:"20px 20px 0 0",
-            width:"100%", maxWidth:600, padding:"8px 20px 32px", maxHeight:"85dvh", overflowY:"auto",
+          <div onClick={e=>e.stopPropagation()} style={{ background:C.card, borderRadius:20,
+            border:`1px solid ${C.border}`, width:"100%", maxWidth:520, maxHeight:"92dvh",
+            display:"flex", flexDirection:"column", overflow:"hidden", boxShadow:"0 24px 60px rgba(0,0,0,0.85)",
             animation:"fadeUp .25s ease",
           }}>
-            {/* Drag handle */}
-            <div style={{ width:36, height:4, borderRadius:2, background:C.border, margin:"12px auto 20px" }}/>
-            <div style={{ ...S.flex("row","center","space-between",0), marginBottom:20 }}>
-              <span style={{ fontWeight:800, fontSize:17 }}>📦 How to Export Instagram Data</span>
-              <button onClick={()=>setGuide(false)} style={{ background:"transparent", border:"none", color:C.sub, fontSize:20 }}>✕</button>
-            </div>
-            <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
-              {[
-                ["Open Instagram","Settings & Privacy → Accounts Center → Your information and permissions"],
-                ["Request Download","Download your information → Download or transfer information → Some of your information"],
-                ["Select Data","Scroll and check only Followers and Following"],
-                ["Choose JSON","Format: JSON · Date range: All time · Download to device"],
-                ["Drop the Files","Unzip the email. Drop followers_1.json (left zone) + following.json (right zone)"],
-              ].map(([t,d],i)=>(
-                <div key={i} style={S.flex("row","flex-start","flex-start",12)}>
-                  <div style={{ width:26, height:26, borderRadius:"50%", flexShrink:0, marginTop:1,
-                    background:`linear-gradient(135deg,${C.cyan},${C.pink})`,
-                    display:"flex", alignItems:"center", justifyContent:"center",
-                    fontSize:12, fontWeight:800, color:"#fff",
-                  }}>{i+1}</div>
-                  <div>
-                    <div style={{ fontWeight:700, fontSize:14, marginBottom:2 }}>{t}</div>
-                    <div style={{ color:C.sub, fontSize:13, lineHeight:1.5 }}>{d}</div>
-                  </div>
+            {/* Header with progress */}
+            <div style={{ padding:"16px 20px 12px", borderBottom:`1px solid ${C.border}`, background:C.card2 }}>
+              <div style={{ ...S.flex("row","center","space-between",0), marginBottom:10 }}>
+                <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                  <span style={{ fontSize:18 }}>📸</span>
+                  <span style={{ fontWeight:800, fontSize:16, color:C.text }}>How to Export Instagram Data</span>
                 </div>
-              ))}
-              <button onClick={()=>setGuide(false)}
-                style={{ marginTop:8, padding:"14px", borderRadius:14, border:"none",
-                  background:`linear-gradient(135deg,${C.cyan},${C.pink})`, color:"#fff",
-                  fontWeight:700, fontSize:15, cursor:"pointer", width:"100%",
-                }}>Got It ⚡</button>
+                <button onClick={()=>setGuide(false)} style={{ background:"transparent", border:"none", color:C.sub, fontSize:22, padding:"0 4px", cursor:"pointer" }}>✕</button>
+              </div>
+              {/* Progress Bar */}
+              <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                <div style={{ flex:1, height:6, borderRadius:3, background:"rgba(255,255,255,0.1)", overflow:"hidden" }}>
+                  <div style={{ height:"100%", width:`${((guideStep + 1) / GUIDE_STEPS.length) * 100}%`, background: GUIDE_STEPS[guideStep].warning ? `linear-gradient(90deg,${C.amber},${C.pink})` : `linear-gradient(90deg,${C.cyan},${C.pink})`, transition:"all 0.3s ease" }}/>
+                </div>
+                <span style={{ fontSize:11, fontFamily:"'JetBrains Mono',monospace", fontWeight:700, color: GUIDE_STEPS[guideStep].warning ? C.amber : C.cyan, minWidth:68, textAlign:"right" }}>
+                  Step {guideStep + 1} / {GUIDE_STEPS.length}
+                </span>
+              </div>
+            </div>
+
+            {/* Slide Content */}
+            <div style={{ padding:"16px 20px", overflowY:"auto", flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:14 }}>
+              {/* Image Preview Container */}
+              <div style={{ position:"relative", width:"100%", background:"#05060a", borderRadius:16, border:`1px solid ${GUIDE_STEPS[guideStep].warning ? C.amber : C.border}`, padding:8, display:"flex", justifyContent:"center", alignItems:"center", minHeight:260, maxHeight:360, overflow:"hidden" }}>
+                <img 
+                  src={GUIDE_STEPS[guideStep].image} 
+                  alt={GUIDE_STEPS[guideStep].title} 
+                  style={{ maxHeight:340, maxWidth:"100%", objectFit:"contain", borderRadius:10, boxShadow:"0 8px 24px rgba(0,0,0,0.6)" }} 
+                />
+                {GUIDE_STEPS[guideStep].warning && (
+                  <div style={{ position:"absolute", top:12, right:12, background:"rgba(255,170,0,0.95)", color:"#000", fontSize:11, fontWeight:800, padding:"4px 10px", borderRadius:999, letterSpacing:1, textTransform:"uppercase", boxShadow:"0 4px 12px rgba(255,170,0,0.5)" }}>
+                    ⚠️ MUST DO
+                  </div>
+                )}
+              </div>
+
+              {/* Text Info */}
+              <div style={{ width:"100%", textAlign:"left" }}>
+                <h3 style={{ fontSize:15, fontWeight:800, color: GUIDE_STEPS[guideStep].warning ? C.amber : C.text, marginBottom:6, display:"flex", alignItems:"center", gap:6 }}>
+                  {GUIDE_STEPS[guideStep].title}
+                </h3>
+                <p style={{ fontSize:13, color:C.sub, lineHeight:1.5 }}>
+                  {GUIDE_STEPS[guideStep].desc}
+                </p>
+              </div>
+            </div>
+
+            {/* Carousel Dots & Controls Footer */}
+            <div style={{ padding:"14px 20px", borderTop:`1px solid ${C.border}`, background:C.card2, display:"flex", flexDirection:"column", gap:12 }}>
+              {/* Dots */}
+              <div style={{ display:"flex", justifyContent:"center", gap:6, flexWrap:"wrap" }}>
+                {GUIDE_STEPS.map((s, idx) => (
+                  <button 
+                    key={idx} 
+                    onClick={() => setGuideStep(idx)}
+                    style={{
+                      width: guideStep === idx ? 20 : 8,
+                      height: 8,
+                      borderRadius: 4,
+                      background: guideStep === idx ? (s.warning ? C.amber : `linear-gradient(90deg,${C.cyan},${C.pink})`) : "rgba(255,255,255,0.2)",
+                      border: "none",
+                      transition: "all 0.25s ease",
+                      cursor: "pointer"
+                    }}
+                  />
+                ))}
+              </div>
+
+              {/* Back / Next Buttons */}
+              <div style={{ display:"flex", gap:10 }}>
+                <button
+                  disabled={guideStep === 0}
+                  onClick={() => setGuideStep(p => Math.max(0, p - 1))}
+                  style={{
+                    flex: 1, padding: "12px", borderRadius: 12,
+                    border: `1px solid ${C.border}`,
+                    background: guideStep === 0 ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.08)",
+                    color: guideStep === 0 ? C.muted : C.text,
+                    fontWeight: 700, fontSize: 14,
+                    cursor: guideStep === 0 ? "not-allowed" : "pointer",
+                    transition: "all 0.15s ease"
+                  }}
+                >
+                  ← Back
+                </button>
+
+                {guideStep < GUIDE_STEPS.length - 1 ? (
+                  <button
+                    onClick={() => setGuideStep(p => Math.min(GUIDE_STEPS.length - 1, p + 1))}
+                    style={{
+                      flex: 2, padding: "12px", borderRadius: 12, border: "none",
+                      background: GUIDE_STEPS[guideStep].warning ? `linear-gradient(135deg,${C.amber},${C.pink})` : `linear-gradient(135deg,${C.cyan},${C.pink})`,
+                      color: "#fff", fontWeight: 800, fontSize: 14, cursor: "pointer",
+                      boxShadow: `0 4px 16px ${C.cyan}44`, transition: "all 0.15s ease"
+                    }}
+                  >
+                    Next Step →
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setGuide(false)}
+                    style={{
+                      flex: 2, padding: "12px", borderRadius: 12, border: "none",
+                      background: `linear-gradient(135deg,${C.green},${C.cyan})`,
+                      color: "#000", fontWeight: 800, fontSize: 14, cursor: "pointer",
+                      boxShadow: `0 4px 16px ${C.green}44`, transition: "all 0.15s ease"
+                    }}
+                  >
+                    Got It ⚡
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
